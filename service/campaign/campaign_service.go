@@ -12,6 +12,7 @@ type CampaignService struct {
 }
 
 func NewCampaignService(repo model.CampaignRepository) model.CampaignService {
+	// grpc.Server
 	return &CampaignService{
 		repo: repo,
 	}

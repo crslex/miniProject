@@ -4,7 +4,7 @@
 // - protoc             v4.25.1
 // source: handler/campaign/grpc/campaign.proto
 
-package __
+package grpc
 
 import (
 	context "context"
@@ -22,7 +22,7 @@ const _ = grpc.SupportPackageIsVersion7
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type CampaignHandlerClient interface {
-	GetCampaignByID(ctx context.Context, in *CreateGetCampaignByIDRequest, opts ...grpc.CallOption) (*CreateGetCampaignByIDResponse, error)
+	GetCampaignByID(ctx context.Context, in *GetCampaignByIDRequest, opts ...grpc.CallOption) (*Campaign, error)
 	GetCampaignByListID(ctx context.Context, opts ...grpc.CallOption) (CampaignHandler_GetCampaignByListIDClient, error)
 }
 
@@ -34,8 +34,8 @@ func NewCampaignHandlerClient(cc grpc.ClientConnInterface) CampaignHandlerClient
 	return &campaignHandlerClient{cc}
 }
 
-func (c *campaignHandlerClient) GetCampaignByID(ctx context.Context, in *CreateGetCampaignByIDRequest, opts ...grpc.CallOption) (*CreateGetCampaignByIDResponse, error) {
-	out := new(CreateGetCampaignByIDResponse)
+func (c *campaignHandlerClient) GetCampaignByID(ctx context.Context, in *GetCampaignByIDRequest, opts ...grpc.CallOption) (*Campaign, error) {
+	out := new(Campaign)
 	err := c.cc.Invoke(ctx, "/CampaignHandler/GetCampaignByID", in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -53,8 +53,8 @@ func (c *campaignHandlerClient) GetCampaignByListID(ctx context.Context, opts ..
 }
 
 type CampaignHandler_GetCampaignByListIDClient interface {
-	Send(*CreateGetCampaignByIDRequest) error
-	Recv() (*CreateGetCampaignByIDResponse, error)
+	Send(*GetCampaignByIDRequest) error
+	CloseAndRecv() (*GetCampaignByIDResponse, error)
 	grpc.ClientStream
 }
 
@@ -62,12 +62,15 @@ type campaignHandlerGetCampaignByListIDClient struct {
 	grpc.ClientStream
 }
 
-func (x *campaignHandlerGetCampaignByListIDClient) Send(m *CreateGetCampaignByIDRequest) error {
+func (x *campaignHandlerGetCampaignByListIDClient) Send(m *GetCampaignByIDRequest) error {
 	return x.ClientStream.SendMsg(m)
 }
 
-func (x *campaignHandlerGetCampaignByListIDClient) Recv() (*CreateGetCampaignByIDResponse, error) {
-	m := new(CreateGetCampaignByIDResponse)
+func (x *campaignHandlerGetCampaignByListIDClient) CloseAndRecv() (*GetCampaignByIDResponse, error) {
+	if err := x.ClientStream.CloseSend(); err != nil {
+		return nil, err
+	}
+	m := new(GetCampaignByIDResponse)
 	if err := x.ClientStream.RecvMsg(m); err != nil {
 		return nil, err
 	}
@@ -78,7 +81,7 @@ func (x *campaignHandlerGetCampaignByListIDClient) Recv() (*CreateGetCampaignByI
 // All implementations must embed UnimplementedCampaignHandlerServer
 // for forward compatibility
 type CampaignHandlerServer interface {
-	GetCampaignByID(context.Context, *CreateGetCampaignByIDRequest) (*CreateGetCampaignByIDResponse, error)
+	GetCampaignByID(context.Context, *GetCampaignByIDRequest) (*Campaign, error)
 	GetCampaignByListID(CampaignHandler_GetCampaignByListIDServer) error
 	mustEmbedUnimplementedCampaignHandlerServer()
 }
@@ -87,7 +90,7 @@ type CampaignHandlerServer interface {
 type UnimplementedCampaignHandlerServer struct {
 }
 
-func (UnimplementedCampaignHandlerServer) GetCampaignByID(context.Context, *CreateGetCampaignByIDRequest) (*CreateGetCampaignByIDResponse, error) {
+func (UnimplementedCampaignHandlerServer) GetCampaignByID(context.Context, *GetCampaignByIDRequest) (*Campaign, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetCampaignByID not implemented")
 }
 func (UnimplementedCampaignHandlerServer) GetCampaignByListID(CampaignHandler_GetCampaignByListIDServer) error {
@@ -107,7 +110,7 @@ func RegisterCampaignHandlerServer(s grpc.ServiceRegistrar, srv CampaignHandlerS
 }
 
 func _CampaignHandler_GetCampaignByID_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(CreateGetCampaignByIDRequest)
+	in := new(GetCampaignByIDRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -119,7 +122,7 @@ func _CampaignHandler_GetCampaignByID_Handler(srv interface{}, ctx context.Conte
 		FullMethod: "/CampaignHandler/GetCampaignByID",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(CampaignHandlerServer).GetCampaignByID(ctx, req.(*CreateGetCampaignByIDRequest))
+		return srv.(CampaignHandlerServer).GetCampaignByID(ctx, req.(*GetCampaignByIDRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -129,8 +132,8 @@ func _CampaignHandler_GetCampaignByListID_Handler(srv interface{}, stream grpc.S
 }
 
 type CampaignHandler_GetCampaignByListIDServer interface {
-	Send(*CreateGetCampaignByIDResponse) error
-	Recv() (*CreateGetCampaignByIDRequest, error)
+	SendAndClose(*GetCampaignByIDResponse) error
+	Recv() (*GetCampaignByIDRequest, error)
 	grpc.ServerStream
 }
 
@@ -138,12 +141,12 @@ type campaignHandlerGetCampaignByListIDServer struct {
 	grpc.ServerStream
 }
 
-func (x *campaignHandlerGetCampaignByListIDServer) Send(m *CreateGetCampaignByIDResponse) error {
+func (x *campaignHandlerGetCampaignByListIDServer) SendAndClose(m *GetCampaignByIDResponse) error {
 	return x.ServerStream.SendMsg(m)
 }
 
-func (x *campaignHandlerGetCampaignByListIDServer) Recv() (*CreateGetCampaignByIDRequest, error) {
-	m := new(CreateGetCampaignByIDRequest)
+func (x *campaignHandlerGetCampaignByListIDServer) Recv() (*GetCampaignByIDRequest, error) {
+	m := new(GetCampaignByIDRequest)
 	if err := x.ServerStream.RecvMsg(m); err != nil {
 		return nil, err
 	}
@@ -166,7 +169,6 @@ var CampaignHandler_ServiceDesc = grpc.ServiceDesc{
 		{
 			StreamName:    "GetCampaignByListID",
 			Handler:       _CampaignHandler_GetCampaignByListID_Handler,
-			ServerStreams: true,
 			ClientStreams: true,
 		},
 	},

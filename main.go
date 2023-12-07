@@ -1,18 +1,17 @@
 package main
 
 import (
-	"context"
 	"fmt"
 	"log"
-	"net/http"
-	"os"
-	"os/signal"
-	"time"
+	"net"
+
+	gr "github.com/crslex/miniProject/handler/campaign/grpc"
 
 	"github.com/crslex/miniProject/config"
+	campaaign_handler "github.com/crslex/miniProject/handler/campaign"
 	campaign_repo "github.com/crslex/miniProject/repository/campaign"
 	campaign_service "github.com/crslex/miniProject/service/campaign"
-	"github.com/gorilla/mux"
+	"google.golang.org/grpc"
 )
 
 func main() {
@@ -32,31 +31,18 @@ func main() {
 	fmt.Println(campaignService)
 
 	// Handler initialization
-
+	listener, err := net.Listen("tcp", ":8080")
+	if err != nil {
+		panic(err)
+	}
+	log.Println("Server started")
+	s := grpc.NewServer()
+	gr.RegisterCampaignHandlerServer(s, &campaaign_handler.GRPCHandler{})
+	if err := s.Serve(listener); err != nil {
+		log.Fatalf("failed to serve: %v", err)
+	}
 	// Router initialization
-	router := mux.NewRouter()
+
 	// Create server, graceful shutdown
-	server := &http.Server{
-		Addr:    "",
-		Handler: router,
-	}
 
-	go func() {
-		log.Println("Starting server...")
-		if err := server.ListenAndServe(); err != nil {
-			log.Fatal(err)
-		}
-	}()
-
-	// wait for an interrupt signal to shut down the server gracefully
-	interrupt := make(chan os.Signal, 1)
-	signal.Notify(interrupt, os.Interrupt)
-	<-interrupt
-	log.Println("Shutting down server...")
-	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
-	defer cancel()
-	if err := server.Shutdown(ctx); err != nil {
-		log.Fatal(err)
-	}
-	log.Println("Server stopped.")
 }

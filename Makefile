@@ -13,4 +13,4 @@ generate-proto:
     campaign.proto
 
 generate-proto-2:
-	protoc --go_out=.  --go_opt=paths=source_relative  --go-grpc_out=. --go-grpc_opt=paths=source_relative  ./handler/campaign/grpc/campaign.proto
+	protoc --go_out=./handler/campaign --go-grpc_out=./handler/campaign handler/campaign/grpc/*.proto
