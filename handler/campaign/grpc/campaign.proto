@@ -1,0 +1,25 @@
+syntax = "proto3";
+option go_package = ".";
+
+import "google/protobuf/timestamp.proto";
+
+message CreateGetCampaignByIDRequest {
+    int64 id = 1;
+}
+
+message CreateGetCampaignByIDResponse {
+    Campaign cmp = 1;
+}
+
+message Campaign {
+    int64 id = 1;
+    string campaign_name = 2;
+    google.protobuf.Timestamp start = 3;
+    google.protobuf.Timestamp end = 4;
+    bool active =5;
+}
+
+service CampaignHandler {
+    rpc GetCampaignByID(CreateGetCampaignByIDRequest) returns (CreateGetCampaignByIDResponse) {}
+    rpc GetCampaignByListID(stream CreateGetCampaignByIDRequest) returns (stream CreateGetCampaignByIDResponse) {}
+}
