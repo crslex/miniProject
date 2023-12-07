@@ -2,41 +2,55 @@ package campaign
 
 import (
 	"context"
-	"fmt"
+	"database/sql"
 	"log"
+	"time"
 
 	model "github.com/crslex/miniProject/model/campaign"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
 type CampaignRepository struct {
-	pgConn *pgxpool.Conn
+	pgConn *pgxpool.Pool
 }
 
-func NewCampaignRepository(pgConn *pgxpool.Conn) model.CampaignRepository {
+func NewCampaignRepository(pgConn *pgxpool.Pool) model.CampaignRepository {
 	return &CampaignRepository{
 		pgConn: pgConn,
 	}
 }
 
-func (c CampaignRepository) GetByID(ctx context.Context, ID int64) (m *model.Campaign, e error) {
-	rows, err := c.pgConn.Query(ctx, "SELECT * FROM campaign WHERE id=$1", ID)
-	if err != nil {
-		return nil, err
-	}
-	for rows.Next() {
-		err = rows.Scan(m)
-		if err != nil {
-			return nil, fmt.Errorf("Failure in converting to object")
-		}
-		break
-	}
+func (c *CampaignRepository) GetByID(ctx context.Context, ID int64) (m *model.Campaign, e error) {
+	// Find on redis first if found, directly send to user, else continue to 2nd phases
 
-	return m, nil
+	// 2nd stage, search on PostgreSQL, if found
+	// publish to NSQ +
+	connection, err := c.pgConn.Acquire(context.Background())
+	if err != nil {
+		log.Fatal("Error while acquiring connection from pool ")
+	}
+	defer connection.Release()
+
+	rows, err := connection.Query(ctx, "SELECT * FROM campaign WHERE id=$1", ID)
+	if !rows.Next() {
+		log.Println("No rows selected by the query.")
+		return nil, sql.ErrNoRows
+	}
+	nn, err := rows.Values()
+	res := model.Campaign{
+		ID:           int64(nn[0].(int32)),
+		Name:         nn[1].(string),
+		Start:        nn[2].(time.Time),
+		End:          nn[3].(time.Time),
+		ActivaStatus: nn[4].(bool),
+	}
+	// PUBLISH TO NSQ HERE
+
+	return &res, nil
 
 }
 
-func (c CampaignRepository) GetByListID(ctx context.Context, ListID []int64) (m *[]model.Campaign, e error) {
+func (c *CampaignRepository) GetByListID(ctx context.Context, ListID []int64) (m *[]model.Campaign, e error) {
 	for _, id := range ListID {
 		cmp, err := c.GetByID(ctx, id)
 		if err != nil {

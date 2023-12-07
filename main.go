@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"log"
 	"net"
 
@@ -12,6 +11,7 @@ import (
 	campaign_repo "github.com/crslex/miniProject/repository/campaign"
 	campaign_service "github.com/crslex/miniProject/service/campaign"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/reflection"
 )
 
 func main() {
@@ -28,7 +28,8 @@ func main() {
 	// services initialization
 	campaignService := campaign_service.NewCampaignService(campaignRepo)
 
-	fmt.Println(campaignService)
+	// New Handler
+	campaignHandler := campaaign_handler.NewHandler(campaignService)
 
 	// Handler initialization
 	listener, err := net.Listen("tcp", ":8080")
@@ -37,7 +38,8 @@ func main() {
 	}
 	log.Println("Server started")
 	s := grpc.NewServer()
-	gr.RegisterCampaignHandlerServer(s, &campaaign_handler.GRPCHandler{})
+	gr.RegisterCampaignHandlerServer(s, campaignHandler)
+	reflection.Register(s)
 	if err := s.Serve(listener); err != nil {
 		log.Fatalf("failed to serve: %v", err)
 	}

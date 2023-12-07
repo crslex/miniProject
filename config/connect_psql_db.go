@@ -21,7 +21,7 @@ const (
 	defaultConnectTimeout    = time.Second * 10
 )
 
-var conn *pgxpool.Conn
+var conn *pgxpool.Pool
 
 func PoolConfig() *pgxpool.Config {
 	dbConfig, err := pgxpool.ParseConfig(dbUri)
@@ -54,23 +54,23 @@ func InitDB() error {
 		log.Fatal("Error while creating connection pool to database", err)
 	}
 
-	connection, err := connPool.Acquire(context.Background())
-	if err != nil {
-		log.Fatal("Error while acquiring connection from pool ")
-	}
-	defer connection.Release()
+	// connection, err := connPool.Acquire(context.Background())
+	// if err != nil {
+	// 	log.Fatal("Error while acquiring connection from pool ")
+	// }
+	// defer connection.Release()
 
-	err = connection.Ping(context.Background())
-	if err != nil {
-		return err
-	}
-	conn = connection
+	// err = connection.Ping(context.Background())
+	// if err != nil {
+	// 	return err
+	// }
+	conn = connPool
 	fmt.Println("Database successfully initialized")
 	return nil
 
 }
 
-func GetConnection() *pgxpool.Conn {
+func GetConnection() *pgxpool.Pool {
 	return conn
 
 }

@@ -1,5 +1,6 @@
 syntax = "proto3";
 option go_package = "./grpc";
+package campaign;
 
 import "google/protobuf/timestamp.proto";
 

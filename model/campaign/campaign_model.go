@@ -6,7 +6,7 @@ import (
 )
 
 type Campaign struct {
-	ID           int64     `json:"campaign_id"`
+	ID           int64     `json:"id"`
 	Name         string    `json:"campaign_name"`
 	Start        time.Time `json:"start"`
 	End          time.Time `json:"end"`

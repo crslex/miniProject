@@ -3,22 +3,24 @@ package campaign
 import (
 	"context"
 	"errors"
+	"log"
 
 	model "github.com/crslex/miniProject/model/campaign"
 )
 
-type CampaignService struct {
+type campaignService struct {
 	repo model.CampaignRepository
 }
 
 func NewCampaignService(repo model.CampaignRepository) model.CampaignService {
 	// grpc.Server
-	return &CampaignService{
+	return &campaignService{
 		repo: repo,
 	}
 }
 
-func (c *CampaignService) GetByID(ctx context.Context, ID int64) (*model.Campaign, error) {
+func (c *campaignService) GetByID(ctx context.Context, ID int64) (*model.Campaign, error) {
+	log.Println("GetByID service is called")
 	cmp, err := c.repo.GetByID(ctx, ID)
 	if err != nil {
 		return nil, errors.New("Error from GetByID service " + err.Error())
@@ -26,7 +28,7 @@ func (c *CampaignService) GetByID(ctx context.Context, ID int64) (*model.Campaig
 	return cmp, nil
 }
 
-func (c *CampaignService) GetByListID(ctx context.Context, ListID []int64) (*[]model.Campaign, error) {
+func (c *campaignService) GetByListID(ctx context.Context, ListID []int64) (*[]model.Campaign, error) {
 	cmpList, err := c.repo.GetByListID(ctx, ListID)
 	if err != nil {
 		return nil, errors.New("Error from GetByListID service " + err.Error())

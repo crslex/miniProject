@@ -5,16 +5,25 @@ import (
 	"log"
 
 	gr "github.com/crslex/miniProject/handler/campaign/grpc"
-	srv "github.com/crslex/miniProject/service/campaign"
+	mdl "github.com/crslex/miniProject/model/campaign"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
-type GRPCHandler struct {
+// mustEmbedUnimplementedCampaignHandlerServer implements grpc.CampaignHandlerServer.
+
+type gRPCHandler struct {
 	gr.UnimplementedCampaignHandlerServer
-	sv srv.CampaignService
+	sv mdl.CampaignService
 }
 
-func (h *GRPCHandler) GetCampaignByID(ctx context.Context, req *gr.GetCampaignByIDRequest) (*gr.Campaign, error) {
+func NewHandler(srv mdl.CampaignService) gr.CampaignHandlerServer {
+	return &gRPCHandler{
+		UnimplementedCampaignHandlerServer: gr.UnimplementedCampaignHandlerServer{},
+		sv:                                 srv,
+	}
+}
+
+func (h *gRPCHandler) GetCampaignByID(ctx context.Context, req *gr.GetCampaignByIDRequest) (*gr.Campaign, error) {
 	log.Println("GetCampaignByID is called ! ")
 	cmp, err := h.sv.GetByID(ctx, int64(req.Id))
 	if err != nil {
@@ -29,8 +38,8 @@ func (h *GRPCHandler) GetCampaignByID(ctx context.Context, req *gr.GetCampaignBy
 	}, nil
 }
 
-func (h *GRPCHandler) GetCampaignByListID(ctx context.Context, req *gr.GetCampaignByListIDRequest) (*gr.GetCampaignByIDResponse, error) {
-	log.Println("GetCampaignByID is called ! ")
+func (h *gRPCHandler) GetCampaignByListID(ctx context.Context, req *gr.GetCampaignByListIDRequest) (*gr.GetCampaignByIDResponse, error) {
+	log.Println("GetCampaignByListID is called ! ")
 	cmp, err := h.sv.GetByListID(ctx, req.GetId())
 	if err != nil {
 		return nil, err

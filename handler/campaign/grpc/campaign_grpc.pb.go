@@ -36,7 +36,7 @@ func NewCampaignHandlerClient(cc grpc.ClientConnInterface) CampaignHandlerClient
 
 func (c *campaignHandlerClient) GetCampaignByID(ctx context.Context, in *GetCampaignByIDRequest, opts ...grpc.CallOption) (*Campaign, error) {
 	out := new(Campaign)
-	err := c.cc.Invoke(ctx, "/CampaignHandler/GetCampaignByID", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/campaign.CampaignHandler/GetCampaignByID", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -45,7 +45,7 @@ func (c *campaignHandlerClient) GetCampaignByID(ctx context.Context, in *GetCamp
 
 func (c *campaignHandlerClient) GetCampaignByListID(ctx context.Context, in *GetCampaignByListIDRequest, opts ...grpc.CallOption) (*GetCampaignByIDResponse, error) {
 	out := new(GetCampaignByIDResponse)
-	err := c.cc.Invoke(ctx, "/CampaignHandler/GetCampaignByListID", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/campaign.CampaignHandler/GetCampaignByListID", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -94,7 +94,7 @@ func _CampaignHandler_GetCampaignByID_Handler(srv interface{}, ctx context.Conte
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/CampaignHandler/GetCampaignByID",
+		FullMethod: "/campaign.CampaignHandler/GetCampaignByID",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(CampaignHandlerServer).GetCampaignByID(ctx, req.(*GetCampaignByIDRequest))
@@ -112,7 +112,7 @@ func _CampaignHandler_GetCampaignByListID_Handler(srv interface{}, ctx context.C
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/CampaignHandler/GetCampaignByListID",
+		FullMethod: "/campaign.CampaignHandler/GetCampaignByListID",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(CampaignHandlerServer).GetCampaignByListID(ctx, req.(*GetCampaignByListIDRequest))
@@ -124,7 +124,7 @@ func _CampaignHandler_GetCampaignByListID_Handler(srv interface{}, ctx context.C
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var CampaignHandler_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "CampaignHandler",
+	ServiceName: "campaign.CampaignHandler",
 	HandlerType: (*CampaignHandlerServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
