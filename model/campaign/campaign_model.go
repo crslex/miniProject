@@ -13,13 +13,13 @@ type Campaign struct {
 	ActivaStatus bool      `json:"active"`
 }
 
-// Accounts related services
+// Campaign related services
 type CampaignService interface {
 	GetByID(ctx context.Context, ID int) (*Campaign, error)
 	GetByListID(ctx context.Context, ListID []int) (*[]Campaign, error)
 }
 
-// Account related repository
+// Campaign related repository
 
 type CampaignRepository interface {
 	GetByID(ctx context.Context, ID int) (*Campaign, error)

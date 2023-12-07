@@ -48,7 +48,7 @@ func PoolConfig() *pgxpool.Config {
 
 	return dbConfig
 }
-func InitDB() {
+func InitDB() error {
 	connPool, err := pgxpool.NewWithConfig(context.Background(), PoolConfig())
 	if err != nil {
 		log.Fatal("Error while creating connection pool to database", err)
@@ -62,10 +62,11 @@ func InitDB() {
 
 	err = connection.Ping(context.Background())
 	if err != nil {
-		log.Fatal("Could not ping database")
+		return err
 	}
 	conn = connection
 	fmt.Println("Database successfully initialized")
+	return nil
 
 }
 

@@ -5,14 +5,13 @@ import (
 	"errors"
 
 	model "github.com/crslex/miniProject/model/campaign"
-	repository "github.com/crslex/miniProject/repository/campaign"
 )
 
 type CampaignService struct {
-	repo *repository.CampaignRepository
+	repo model.CampaignRepository
 }
 
-func NewCampaignService(repo *repository.CampaignRepository) model.CampaignService {
+func NewCampaignService(repo model.CampaignRepository) model.CampaignService {
 	return &CampaignService{
 		repo: repo,
 	}
