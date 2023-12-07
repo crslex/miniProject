@@ -7,6 +7,10 @@ message GetCampaignByIDRequest {
     int64 id = 1;
 }
 
+message GetCampaignByListIDRequest {
+    repeated int64 id = 1;
+}
+
 message Campaign {
     int64 id = 1;
     string campaign_name = 2;
@@ -21,5 +25,5 @@ message GetCampaignByIDResponse {
 
 service CampaignHandler {
     rpc GetCampaignByID(GetCampaignByIDRequest) returns (Campaign) {}
-    rpc GetCampaignByListID(stream GetCampaignByIDRequest) returns (GetCampaignByIDResponse) {}
+    rpc GetCampaignByListID(GetCampaignByListIDRequest) returns (GetCampaignByIDResponse) {}
 }

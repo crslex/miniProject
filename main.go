@@ -41,8 +41,5 @@ func main() {
 	if err := s.Serve(listener); err != nil {
 		log.Fatalf("failed to serve: %v", err)
 	}
-	// Router initialization
-
-	// Create server, graceful shutdown
 
 }

@@ -16,7 +16,7 @@ type GRPCHandler struct {
 
 func (h *GRPCHandler) GetCampaignByID(ctx context.Context, req *gr.GetCampaignByIDRequest) (*gr.Campaign, error) {
 	log.Println("GetCampaignByID is called ! ")
-	cmp, err := h.sv.GetByID(ctx, int(req.Id))
+	cmp, err := h.sv.GetByID(ctx, int64(req.Id))
 	if err != nil {
 		return nil, err
 	}
@@ -29,10 +29,24 @@ func (h *GRPCHandler) GetCampaignByID(ctx context.Context, req *gr.GetCampaignBy
 	}, nil
 }
 
-func (h *GRPCHandler) GetCampaignByListID(req gr.CampaignHandler_GetCampaignByListIDServer) error {
+func (h *GRPCHandler) GetCampaignByListID(ctx context.Context, req *gr.GetCampaignByListIDRequest) (*gr.GetCampaignByIDResponse, error) {
 	log.Println("GetCampaignByID is called ! ")
-	// req.RecvMsg()
-	// cmp, err := h.sv.GetByListID(req.)
-	return nil
+	cmp, err := h.sv.GetByListID(ctx, req.GetId())
+	if err != nil {
+		return nil, err
+	}
 
+	converted_res := &gr.GetCampaignByIDResponse{
+		Campaign: []*gr.Campaign{},
+	}
+	for _, cmp := range *cmp {
+		converted_res.Campaign = append(converted_res.Campaign, &gr.Campaign{
+			Id:           cmp.ID,
+			CampaignName: cmp.Name,
+			Start:        timestamppb.New(cmp.Start),
+			End:          timestamppb.New(cmp.End),
+			Active:       cmp.ActivaStatus,
+		})
+	}
+	return converted_res, nil
 }

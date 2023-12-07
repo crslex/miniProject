@@ -18,7 +18,7 @@ func NewCampaignService(repo model.CampaignRepository) model.CampaignService {
 	}
 }
 
-func (c *CampaignService) GetByID(ctx context.Context, ID int) (*model.Campaign, error) {
+func (c *CampaignService) GetByID(ctx context.Context, ID int64) (*model.Campaign, error) {
 	cmp, err := c.repo.GetByID(ctx, ID)
 	if err != nil {
 		return nil, errors.New("Error from GetByID service " + err.Error())
@@ -26,7 +26,7 @@ func (c *CampaignService) GetByID(ctx context.Context, ID int) (*model.Campaign,
 	return cmp, nil
 }
 
-func (c *CampaignService) GetByListID(ctx context.Context, ListID []int) (*[]model.Campaign, error) {
+func (c *CampaignService) GetByListID(ctx context.Context, ListID []int64) (*[]model.Campaign, error) {
 	cmpList, err := c.repo.GetByListID(ctx, ListID)
 	if err != nil {
 		return nil, errors.New("Error from GetByListID service " + err.Error())
