@@ -27,3 +27,6 @@ test-grpc-getbyid:
 
 activate-nsq:
 	nsqlookupd & nsqd --lookupd-tcp-address=127.0.0.1:4160 -broadcast-address=127.0.0.1 & nsqadmin --lookupd-http-address=127.0.0.1:4161
+
+activate-nsq-consumer:
+	go run repository/redis/nsq_consumer/consumer.go

@@ -14,7 +14,7 @@ var nsq_consumer *nsq.Consumer
 func main() {
 
 	config := nsq.NewConfig()
-	nsq_consumer, _ = nsq.NewConsumer("write_test", "ch", config)
+	nsq_consumer, _ = nsq.NewConsumer("to_redis", "ch", config)
 	// Add logic to insert into redis cache
 	nsq_consumer.AddHandler(nsq.HandlerFunc(func(message *nsq.Message) error {
 		log.Printf("Got a message: %v", string(message.Body[:]))

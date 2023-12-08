@@ -59,6 +59,7 @@ func (c *CampaignRepository) GetByID(ctx context.Context, ID int64) (m *model.Ca
 		log.Println("Failed to publish to redis through nsq")
 		return nil, err
 	}
+	// Consume
 	// Return back to upper layer
 	return &res, nil
 
