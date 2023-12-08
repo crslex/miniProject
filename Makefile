@@ -22,5 +22,8 @@ check-grpc-service-method:
 	grpcurl -plaintext localhost:8080 list campaign.CampaignHandler
 
 test-grpc-getbyid:
-	grpcurl -plaintext -format text -d 'id: 17' \
+	grpcurl -plaintext -format text -d 'id: 1' \
 	localhost:8080 campaign.CampaignHandler.GetCampaignByID
+
+activate-nsq:
+	nsqlookupd & nsqd --lookupd-tcp-address=127.0.0.1:4160 -broadcast-address=127.0.0.1 & nsqadmin --lookupd-http-address=127.0.0.1:4161

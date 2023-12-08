@@ -3,28 +3,32 @@ package campaign
 import (
 	"context"
 	"database/sql"
+	"encoding/json"
+	"fmt"
 	"log"
 	"time"
 
 	model "github.com/crslex/miniProject/model/campaign"
 	"github.com/jackc/pgx/v5/pgxpool"
+	"github.com/nsqio/go-nsq"
 )
 
 type CampaignRepository struct {
-	pgConn *pgxpool.Pool
+	pgConn  *pgxpool.Pool
+	nsqProd *nsq.Producer
 }
 
-func NewCampaignRepository(pgConn *pgxpool.Pool) model.CampaignRepository {
+func NewCampaignRepository(pgConn *pgxpool.Pool, nsqProd *nsq.Producer) model.CampaignRepository {
 	return &CampaignRepository{
-		pgConn: pgConn,
+		pgConn:  pgConn,
+		nsqProd: nsqProd,
 	}
 }
 
 func (c *CampaignRepository) GetByID(ctx context.Context, ID int64) (m *model.Campaign, e error) {
 	// Find on redis first if found, directly send to user, else continue to 2nd phases
-
 	// 2nd stage, search on PostgreSQL, if found
-	// publish to NSQ +
+	// publish to NSQ
 	connection, err := c.pgConn.Acquire(context.Background())
 	if err != nil {
 		log.Fatal("Error while acquiring connection from pool ")
@@ -45,7 +49,17 @@ func (c *CampaignRepository) GetByID(ctx context.Context, ID int64) (m *model.Ca
 		ActivaStatus: nn[4].(bool),
 	}
 	// PUBLISH TO NSQ HERE
-
+	cmp, err := json.Marshal(res)
+	if err != nil {
+		fmt.Println(err)
+		return nil, err
+	}
+	err = c.nsqProd.Publish("to_redis", cmp)
+	if err != nil {
+		log.Println("Failed to publish to redis through nsq")
+		return nil, err
+	}
+	// Return back to upper layer
 	return &res, nil
 
 }
