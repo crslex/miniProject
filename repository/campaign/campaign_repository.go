@@ -66,12 +66,13 @@ func (c *CampaignRepository) GetByID(ctx context.Context, ID int64) (m *model.Ca
 }
 
 func (c *CampaignRepository) GetByListID(ctx context.Context, ListID []int64) (m *[]model.Campaign, e error) {
+	res := []model.Campaign{}
 	for _, id := range ListID {
 		cmp, err := c.GetByID(ctx, id)
 		if err != nil {
 			log.Fatal("Failed in GetByLastID using GetByID", err.Error())
 		}
-		*m = append(*m, *cmp)
+		res = append(res, *cmp)
 	}
-	return m, nil
+	return &res, nil
 }
