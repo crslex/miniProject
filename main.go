@@ -6,6 +6,7 @@ import (
 
 	gr "github.com/crslex/miniProject/handler/campaign/grpc"
 	"github.com/nsqio/go-nsq"
+	"github.com/redis/go-redis/v9"
 
 	"github.com/crslex/miniProject/config"
 	campaaign_handler "github.com/crslex/miniProject/handler/campaign"
@@ -26,9 +27,23 @@ func main() {
 	// Create NSQ Producer
 	config := nsq.NewConfig()
 	NSQProducer, _ := nsq.NewProducer("127.0.0.1:4150", config)
+	// Create NSQ Consumer
+	config_consumer := nsq.NewConfig()
+	nsq_consumer, _ := nsq.NewConsumer("to_redis", "ch", config_consumer)
 
+	// Create redis client
+	rdb := redis.NewClient(
+		&redis.Options{
+			Addr:     "localhost:6379", // Update with your Redis server address
+			DB:       0,                // Default DB
+			Password: "",
+		},
+	)
 	// repo initialization
-	campaignRepo := campaign_repo.NewCampaignRepository(conn, NSQProducer)
+	campaignRepo := campaign_repo.NewCampaignRepository(conn, NSQProducer, rdb)
+
+	// Initiate NSQ Consumer
+	campaignRepo.InitNSQConsumer(nsq_consumer)
 
 	// services initialization
 	campaignService := campaign_service.NewCampaignService(campaignRepo)

@@ -34,3 +34,6 @@ activate-nsq:
 
 activate-nsq-consumer:
 	go run repository/redis/nsq_consumer/consumer.go
+
+start-server:
+	go run main.go

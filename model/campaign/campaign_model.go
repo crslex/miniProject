@@ -3,6 +3,8 @@ package model
 import (
 	"context"
 	"time"
+
+	"github.com/nsqio/go-nsq"
 )
 
 type Campaign struct {
@@ -24,4 +26,5 @@ type CampaignService interface {
 type CampaignRepository interface {
 	GetByID(ctx context.Context, ID int64) (*Campaign, error)
 	GetByListID(ctx context.Context, ListID []int64) (*[]Campaign, error)
+	InitNSQConsumer(nsq_consumer *nsq.Consumer)
 }
