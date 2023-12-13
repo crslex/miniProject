@@ -48,7 +48,7 @@ func (h *gRPCHandler) GetCampaignByListID(ctx context.Context, req *gr.GetCampai
 	converted_res := &gr.GetCampaignByIDResponse{
 		Campaign: []*gr.Campaign{},
 	}
-	for _, cmp := range *cmp {
+	for _, cmp := range cmp {
 		converted_res.Campaign = append(converted_res.Campaign, &gr.Campaign{
 			Id:           cmp.ID,
 			CampaignName: cmp.Name,

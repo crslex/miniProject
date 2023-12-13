@@ -4,11 +4,13 @@ import (
 	"context"
 	"database/sql"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"log"
 	"time"
 
 	model "github.com/crslex/miniProject/model/campaign"
+	"github.com/elastic/go-elasticsearch/v8"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/nsqio/go-nsq"
 	"github.com/redis/go-redis/v9"
@@ -22,13 +24,15 @@ type CampaignRepository struct {
 	pgConn  *pgxpool.Pool
 	nsqProd *nsq.Producer
 	rc      *redis.Client
+	es      *elasticsearch.Client
 }
 
-func NewCampaignRepository(pgConn *pgxpool.Pool, nsqProd *nsq.Producer, rc *redis.Client) model.CampaignRepository {
+func NewCampaignRepository(pgConn *pgxpool.Pool, nsqProd *nsq.Producer, rc *redis.Client, es *elasticsearch.Client) model.CampaignRepository {
 	return &CampaignRepository{
 		pgConn:  pgConn,
 		nsqProd: nsqProd,
 		rc:      rc,
+		es:      es,
 	}
 }
 
@@ -92,11 +96,17 @@ func (c *CampaignRepository) GetByID(ctx context.Context, ID int64) (m *model.Ca
 	defer connection.Release()
 
 	rows, err := connection.Query(ctx, "SELECT * FROM campaign WHERE id=$1", ID)
+	if err != nil {
+		return nil, errors.New("failed to execute query in GetByID repository layer")
+	}
 	if !rows.Next() {
 		log.Println("Keys not found")
 		return nil, sql.ErrNoRows
 	}
 	nn, err := rows.Values()
+	if err != nil {
+		return nil, errors.New("failed to acquire values from rows acquired")
+	}
 	res := model.Campaign{
 		ID:           int64(nn[0].(int32)),
 		Name:         nn[1].(string),
@@ -119,14 +129,15 @@ func (c *CampaignRepository) GetByID(ctx context.Context, ID int64) (m *model.Ca
 
 }
 
-func (c *CampaignRepository) GetByListID(ctx context.Context, ListID []int64) (m *[]model.Campaign, e error) {
+func (c *CampaignRepository) GetByListID(ctx context.Context, ListID []int64) (m []model.Campaign, e error) {
 	res := []model.Campaign{}
 	for _, id := range ListID {
 		cmp, err := c.GetByID(ctx, id)
 		if err != nil {
-			log.Fatal("Failed in GetByLastID using GetByID", err.Error())
+			log.Println("Failed in GetByLastID using GetByID", err.Error())
+			continue
 		}
 		res = append(res, *cmp)
 	}
-	return &res, nil
+	return res, nil
 }

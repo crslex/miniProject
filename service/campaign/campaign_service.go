@@ -12,6 +12,14 @@ type campaignService struct {
 	repo model.CampaignRepository
 }
 
+func (*campaignService) GetByIDGraphQL() {
+	panic("unimplemented")
+}
+
+func (*campaignService) GetByListIDGraphQL() {
+	panic("unimplemented")
+}
+
 func NewCampaignService(repo model.CampaignRepository) model.CampaignService {
 	// grpc.Server
 	return &campaignService{
@@ -28,7 +36,7 @@ func (c *campaignService) GetByID(ctx context.Context, ID int64) (*model.Campaig
 	return cmp, nil
 }
 
-func (c *campaignService) GetByListID(ctx context.Context, ListID []int64) (*[]model.Campaign, error) {
+func (c *campaignService) GetByListID(ctx context.Context, ListID []int64) ([]model.Campaign, error) {
 	cmpList, err := c.repo.GetByListID(ctx, ListID)
 	if err != nil {
 		return nil, errors.New("Error from GetByListID service " + err.Error())

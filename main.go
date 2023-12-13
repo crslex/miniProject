@@ -1,10 +1,13 @@
 package main
 
 import (
+	"crypto/tls"
 	"log"
 	"net"
+	"net/http"
 
 	gr "github.com/crslex/miniProject/handler/campaign/grpc"
+	"github.com/elastic/go-elasticsearch/v8"
 	"github.com/nsqio/go-nsq"
 	"github.com/redis/go-redis/v9"
 
@@ -39,8 +42,24 @@ func main() {
 			Password: "",
 		},
 	)
+
+	// Create elasticsearch client
+	cfg := elasticsearch.Config{
+		Addresses: []string{
+			"https://localhost:9200",
+		},
+		Username: "elastic",
+		Password: "s4QAc6N6JzHm6TFKu9**",
+		Transport: &http.Transport{
+			TLSClientConfig: &tls.Config{
+				InsecureSkipVerify: true,
+			},
+		},
+	}
+
+	es_client, _ := elasticsearch.NewClient(cfg)
 	// repo initialization
-	campaignRepo := campaign_repo.NewCampaignRepository(conn, NSQProducer, rdb)
+	campaignRepo := campaign_repo.NewCampaignRepository(conn, NSQProducer, rdb, es_client)
 
 	// Initiate NSQ Consumer
 	campaignRepo.InitNSQConsumer(nsq_consumer)
