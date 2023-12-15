@@ -21,7 +21,6 @@ func (*campaignService) GetByListIDGraphQL() {
 }
 
 func NewCampaignService(repo model.CampaignRepository) model.CampaignService {
-	// grpc.Server
 	return &campaignService{
 		repo: repo,
 	}

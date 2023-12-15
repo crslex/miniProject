@@ -1,12 +1,14 @@
 package campaign
 
 import (
+	"bytes"
 	"context"
 	"database/sql"
 	"encoding/json"
 	"errors"
 	"fmt"
 	"log"
+	"strconv"
 	"time"
 
 	model "github.com/crslex/miniProject/model/campaign"
@@ -18,6 +20,7 @@ import (
 
 const (
 	redis_topic_name = "to_redis"
+	es_index_name    = "campaign_index"
 )
 
 type CampaignRepository struct {
@@ -26,6 +29,8 @@ type CampaignRepository struct {
 	rc      *redis.Client
 	es      *elasticsearch.Client
 }
+
+// GetByListIDElasticSearch implements model.CampaignRepository.
 
 func NewCampaignRepository(pgConn *pgxpool.Pool, nsqProd *nsq.Producer, rc *redis.Client, es *elasticsearch.Client) model.CampaignRepository {
 	return &CampaignRepository{
@@ -55,6 +60,35 @@ func (c *CampaignRepository) InitNSQConsumer(nsq_consumer *nsq.Consumer) {
 			return nil
 		}
 
+		// Send to ElasticSearch
+		exists, err := c.es.Indices.Exists([]string{es_index_name})
+		if err != nil {
+			log.Println("Failed to check the existence of campaign_index")
+			return err
+		}
+		// Create index
+		if exists.IsError() {
+			createIndex, err := c.es.Indices.Create(es_index_name)
+			log.Println("Indices created")
+			if err != nil {
+				return err
+			}
+			if createIndex.IsError() {
+				return fmt.Errorf("elastic search specific error in creating index")
+			}
+		}
+		// Put document on index with campaignID as elastic search ID
+		bodyBytes := bytes.NewReader(message.Body[:])
+		id := strconv.Itoa(int(cachedCampaign.ID))
+		putdocs := c.es.Index.WithDocumentID(id)
+
+		final_response, err := c.es.Index(es_index_name, bodyBytes, putdocs)
+		if err != nil {
+			log.Println("Failed to put the documents into the index")
+		}
+		if final_response.IsError() {
+			log.Println("Elasticsearch specific error when putting the documents into index")
+		}
 		return nil
 	}))
 	err := nsq_consumer.ConnectToNSQLookupd("127.0.0.1:4161")

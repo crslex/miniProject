@@ -23,7 +23,9 @@ const _ = grpc.SupportPackageIsVersion7
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type CampaignHandlerClient interface {
 	GetCampaignByID(ctx context.Context, in *GetCampaignByIDRequest, opts ...grpc.CallOption) (*Campaign, error)
+	GetCampaignByIDElasticSearch(ctx context.Context, in *GetCampaignByIDRequest, opts ...grpc.CallOption) (*Campaign, error)
 	GetCampaignByListID(ctx context.Context, in *GetCampaignByListIDRequest, opts ...grpc.CallOption) (*GetCampaignByIDResponse, error)
+	GetCampaignByListIDElasticSearch(ctx context.Context, in *GetCampaignByListIDRequest, opts ...grpc.CallOption) (*GetCampaignByIDResponse, error)
 }
 
 type campaignHandlerClient struct {
@@ -43,9 +45,27 @@ func (c *campaignHandlerClient) GetCampaignByID(ctx context.Context, in *GetCamp
 	return out, nil
 }
 
+func (c *campaignHandlerClient) GetCampaignByIDElasticSearch(ctx context.Context, in *GetCampaignByIDRequest, opts ...grpc.CallOption) (*Campaign, error) {
+	out := new(Campaign)
+	err := c.cc.Invoke(ctx, "/campaign.CampaignHandler/GetCampaignByIDElasticSearch", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *campaignHandlerClient) GetCampaignByListID(ctx context.Context, in *GetCampaignByListIDRequest, opts ...grpc.CallOption) (*GetCampaignByIDResponse, error) {
 	out := new(GetCampaignByIDResponse)
 	err := c.cc.Invoke(ctx, "/campaign.CampaignHandler/GetCampaignByListID", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *campaignHandlerClient) GetCampaignByListIDElasticSearch(ctx context.Context, in *GetCampaignByListIDRequest, opts ...grpc.CallOption) (*GetCampaignByIDResponse, error) {
+	out := new(GetCampaignByIDResponse)
+	err := c.cc.Invoke(ctx, "/campaign.CampaignHandler/GetCampaignByListIDElasticSearch", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -57,7 +77,9 @@ func (c *campaignHandlerClient) GetCampaignByListID(ctx context.Context, in *Get
 // for forward compatibility
 type CampaignHandlerServer interface {
 	GetCampaignByID(context.Context, *GetCampaignByIDRequest) (*Campaign, error)
+	GetCampaignByIDElasticSearch(context.Context, *GetCampaignByIDRequest) (*Campaign, error)
 	GetCampaignByListID(context.Context, *GetCampaignByListIDRequest) (*GetCampaignByIDResponse, error)
+	GetCampaignByListIDElasticSearch(context.Context, *GetCampaignByListIDRequest) (*GetCampaignByIDResponse, error)
 	mustEmbedUnimplementedCampaignHandlerServer()
 }
 
@@ -68,8 +90,14 @@ type UnimplementedCampaignHandlerServer struct {
 func (UnimplementedCampaignHandlerServer) GetCampaignByID(context.Context, *GetCampaignByIDRequest) (*Campaign, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetCampaignByID not implemented")
 }
+func (UnimplementedCampaignHandlerServer) GetCampaignByIDElasticSearch(context.Context, *GetCampaignByIDRequest) (*Campaign, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetCampaignByIDElasticSearch not implemented")
+}
 func (UnimplementedCampaignHandlerServer) GetCampaignByListID(context.Context, *GetCampaignByListIDRequest) (*GetCampaignByIDResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetCampaignByListID not implemented")
+}
+func (UnimplementedCampaignHandlerServer) GetCampaignByListIDElasticSearch(context.Context, *GetCampaignByListIDRequest) (*GetCampaignByIDResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetCampaignByListIDElasticSearch not implemented")
 }
 func (UnimplementedCampaignHandlerServer) mustEmbedUnimplementedCampaignHandlerServer() {}
 
@@ -102,6 +130,24 @@ func _CampaignHandler_GetCampaignByID_Handler(srv interface{}, ctx context.Conte
 	return interceptor(ctx, in, info, handler)
 }
 
+func _CampaignHandler_GetCampaignByIDElasticSearch_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetCampaignByIDRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CampaignHandlerServer).GetCampaignByIDElasticSearch(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/campaign.CampaignHandler/GetCampaignByIDElasticSearch",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CampaignHandlerServer).GetCampaignByIDElasticSearch(ctx, req.(*GetCampaignByIDRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _CampaignHandler_GetCampaignByListID_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(GetCampaignByListIDRequest)
 	if err := dec(in); err != nil {
@@ -120,6 +166,24 @@ func _CampaignHandler_GetCampaignByListID_Handler(srv interface{}, ctx context.C
 	return interceptor(ctx, in, info, handler)
 }
 
+func _CampaignHandler_GetCampaignByListIDElasticSearch_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetCampaignByListIDRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(CampaignHandlerServer).GetCampaignByListIDElasticSearch(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/campaign.CampaignHandler/GetCampaignByListIDElasticSearch",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(CampaignHandlerServer).GetCampaignByListIDElasticSearch(ctx, req.(*GetCampaignByListIDRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // CampaignHandler_ServiceDesc is the grpc.ServiceDesc for CampaignHandler service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -132,8 +196,16 @@ var CampaignHandler_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _CampaignHandler_GetCampaignByID_Handler,
 		},
 		{
+			MethodName: "GetCampaignByIDElasticSearch",
+			Handler:    _CampaignHandler_GetCampaignByIDElasticSearch_Handler,
+		},
+		{
 			MethodName: "GetCampaignByListID",
 			Handler:    _CampaignHandler_GetCampaignByListID_Handler,
+		},
+		{
+			MethodName: "GetCampaignByListIDElasticSearch",
+			Handler:    _CampaignHandler_GetCampaignByListIDElasticSearch_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

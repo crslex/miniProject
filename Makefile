@@ -20,6 +20,10 @@ test-grpc-getbyid:
 	grpcurl -plaintext -d '{"id": 1}' \
 	localhost:8080 campaign.CampaignHandler.GetCampaignByID
 
+test-grpc-getbyid-es:
+	grpcurl -plaintext -d '{"id": 3}' \
+	localhost:8080 campaign.CampaignHandler.GetCampaignByIDElasticSearch
+
 test-grpc-getbyid-multiple:
 	grpcurl -plaintext -d '{"id": [1,2,17]}' \
 	localhost:8080 campaign.CampaignHandler.GetCampaignByListID
@@ -28,7 +32,7 @@ activate-nsq:
 	nsqlookupd & nsqd --lookupd-tcp-address=127.0.0.1:4160 -broadcast-address=127.0.0.1 & nsqadmin --lookupd-http-address=127.0.0.1:4161
 
 run-elastic:
-	./bin/elasticsearch
+	$(ES_HOME)/bin/elasticsearch
 
 start-server:
 	go run main.go

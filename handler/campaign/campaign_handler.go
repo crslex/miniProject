@@ -2,14 +2,13 @@ package campaign
 
 import (
 	"context"
+	"fmt"
 	"log"
 
 	gr "github.com/crslex/miniProject/handler/campaign/grpc"
 	mdl "github.com/crslex/miniProject/model/campaign"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
-
-// mustEmbedUnimplementedCampaignHandlerServer implements grpc.CampaignHandlerServer.
 
 type gRPCHandler struct {
 	gr.UnimplementedCampaignHandlerServer
@@ -25,7 +24,7 @@ func NewHandler(srv mdl.CampaignService) gr.CampaignHandlerServer {
 
 func (h *gRPCHandler) GetCampaignByID(ctx context.Context, req *gr.GetCampaignByIDRequest) (*gr.Campaign, error) {
 	log.Println("GetCampaignByID is called ! ")
-	cmp, err := h.sv.GetByID(ctx, int64(req.Id))
+	cmp, err := h.sv.GetByID(ctx, req.GetId())
 	if err != nil {
 		return nil, err
 	}
@@ -58,4 +57,23 @@ func (h *gRPCHandler) GetCampaignByListID(ctx context.Context, req *gr.GetCampai
 		})
 	}
 	return converted_res, nil
+}
+func (h *gRPCHandler) GetCampaignByIDElasticSearch(ctx context.Context, req *gr.GetCampaignByIDRequest) (*gr.Campaign, error) {
+	log.Println("GetCampaignByIDElasticSearch is called ! ")
+
+	cmp, err := h.sv.GetByIDElasticSearch(ctx, fmt.Sprint(req.Id))
+	if err != nil {
+		return nil, err
+	}
+	return &gr.Campaign{
+		Id:           cmp.ID,
+		CampaignName: cmp.Name,
+		Start:        timestamppb.New(cmp.Start),
+		End:          timestamppb.New(cmp.End),
+		Active:       cmp.ActivaStatus,
+	}, nil
+}
+
+func (h *gRPCHandler) GetCampaignByListIDElasticSearch(context.Context, *gr.GetCampaignByListIDRequest) (*gr.GetCampaignByIDResponse, error) {
+	return nil, nil
 }

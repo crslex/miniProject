@@ -26,5 +26,7 @@ message GetCampaignByIDResponse {
 
 service CampaignHandler {
     rpc GetCampaignByID(GetCampaignByIDRequest) returns (Campaign) {}
+    rpc GetCampaignByIDElasticSearch(GetCampaignByIDRequest) returns (Campaign) {}
     rpc GetCampaignByListID(GetCampaignByListIDRequest) returns (GetCampaignByIDResponse) {}
+    rpc GetCampaignByListIDElasticSearch(GetCampaignByListIDRequest) returns (GetCampaignByIDResponse) {}
 }
