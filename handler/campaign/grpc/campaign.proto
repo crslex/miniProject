@@ -12,6 +12,14 @@ message GetCampaignByListIDRequest {
     repeated int64 id = 1;
 }
 
+message GetCampaignByIDElasticSearchRequest {
+    string id = 1;
+}
+
+message GetCampaignByListIDElasticSearchRequest {
+    repeated string id = 1;
+}
+
 message Campaign {
     int64 id = 1;
     string campaign_name = 2;
@@ -20,13 +28,13 @@ message Campaign {
     bool active =5;
 }
 
-message GetCampaignByIDResponse {
+message GetCampaignByListIDResponse {
     repeated Campaign campaign=1;
 }
 
 service CampaignHandler {
     rpc GetCampaignByID(GetCampaignByIDRequest) returns (Campaign) {}
-    rpc GetCampaignByIDElasticSearch(GetCampaignByIDRequest) returns (Campaign) {}
-    rpc GetCampaignByListID(GetCampaignByListIDRequest) returns (GetCampaignByIDResponse) {}
-    rpc GetCampaignByListIDElasticSearch(GetCampaignByListIDRequest) returns (GetCampaignByIDResponse) {}
+    rpc GetCampaignByIDElasticSearch(GetCampaignByIDElasticSearchRequest) returns (Campaign) {}
+    rpc GetCampaignByListID(GetCampaignByListIDRequest) returns (GetCampaignByListIDResponse) {}
+    rpc GetCampaignByListIDElasticSearch(GetCampaignByListIDElasticSearchRequest) returns (GetCampaignByListIDResponse) {}
 }

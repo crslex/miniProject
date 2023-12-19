@@ -13,8 +13,17 @@ import (
 	model "github.com/crslex/miniProject/model/campaign"
 )
 
-func (c *CampaignRepository) GetByListIDElasticSearch(ctx context.Context, ID int64) ([]model.Campaign, error) {
-	panic("unimplemented")
+func (c *CampaignRepository) GetByListIDElasticSearch(ctx context.Context, ListID []string) ([]model.Campaign, error) {
+	res := []model.Campaign{}
+	for _, id := range ListID {
+		cmp, err := c.GetByIDElasticSearch(ctx, id)
+		if err != nil {
+			log.Println("Failed in GetByListIDElasticSearch using GetByIDElasticSearch", err.Error())
+			continue
+		}
+		res = append(res, *cmp)
+	}
+	return res, nil
 }
 
 func (c *CampaignRepository) GetByIDElasticSearch(ctx context.Context, ID string) (*model.Campaign, error) {
@@ -35,6 +44,7 @@ func (c *CampaignRepository) GetByIDElasticSearch(ctx context.Context, ID string
 		if err := json.Unmarshal(bodyBytes, &esResponse); err != nil {
 			log.Println("Failed to unmarshal into campaign docs")
 		}
+		log.Println("Got campaign from es")
 		return &esResponse.Source, nil
 	}
 

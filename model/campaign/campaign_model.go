@@ -32,7 +32,7 @@ type CampaignService interface {
 	GetByIDGraphQL()
 	GetByListIDGraphQL()
 	GetByIDElasticSearch(ctx context.Context, ID string) (*Campaign, error)
-	GetByListIDElasticSearch(ctx context.Context, ID int64) ([]Campaign, error)
+	GetByListIDElasticSearch(ctx context.Context, ListID []string) ([]Campaign, error)
 }
 
 // Campaign related repository
@@ -42,6 +42,6 @@ type CampaignRepository interface {
 	GetByListID(ctx context.Context, ListID []int64) ([]Campaign, error)
 	InitNSQConsumer(nsq_consumer *nsq.Consumer)
 	GetByIDElasticSearch(ctx context.Context, ID string) (*Campaign, error)
-	GetByListIDElasticSearch(ctx context.Context, ID int64) ([]Campaign, error)
+	GetByListIDElasticSearch(ctx context.Context, ListID []string) ([]Campaign, error)
 	// GetAllIDs(ctx context.Context) ([]Campaign, error)
 }

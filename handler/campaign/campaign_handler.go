@@ -2,7 +2,6 @@ package campaign
 
 import (
 	"context"
-	"fmt"
 	"log"
 
 	gr "github.com/crslex/miniProject/handler/campaign/grpc"
@@ -37,14 +36,14 @@ func (h *gRPCHandler) GetCampaignByID(ctx context.Context, req *gr.GetCampaignBy
 	}, nil
 }
 
-func (h *gRPCHandler) GetCampaignByListID(ctx context.Context, req *gr.GetCampaignByListIDRequest) (*gr.GetCampaignByIDResponse, error) {
+func (h *gRPCHandler) GetCampaignByListID(ctx context.Context, req *gr.GetCampaignByListIDRequest) (*gr.GetCampaignByListIDResponse, error) {
 	log.Println("GetCampaignByListID is called ! ")
 	cmp, err := h.sv.GetByListID(ctx, req.GetId())
 	if err != nil {
 		return nil, err
 	}
 
-	converted_res := &gr.GetCampaignByIDResponse{
+	converted_res := &gr.GetCampaignByListIDResponse{
 		Campaign: []*gr.Campaign{},
 	}
 	for _, cmp := range cmp {
@@ -58,10 +57,10 @@ func (h *gRPCHandler) GetCampaignByListID(ctx context.Context, req *gr.GetCampai
 	}
 	return converted_res, nil
 }
-func (h *gRPCHandler) GetCampaignByIDElasticSearch(ctx context.Context, req *gr.GetCampaignByIDRequest) (*gr.Campaign, error) {
+func (h *gRPCHandler) GetCampaignByIDElasticSearch(ctx context.Context, req *gr.GetCampaignByIDElasticSearchRequest) (*gr.Campaign, error) {
 	log.Println("GetCampaignByIDElasticSearch is called ! ")
 
-	cmp, err := h.sv.GetByIDElasticSearch(ctx, fmt.Sprint(req.Id))
+	cmp, err := h.sv.GetByIDElasticSearch(ctx, req.GetId())
 	if err != nil {
 		return nil, err
 	}
@@ -74,6 +73,27 @@ func (h *gRPCHandler) GetCampaignByIDElasticSearch(ctx context.Context, req *gr.
 	}, nil
 }
 
-func (h *gRPCHandler) GetCampaignByListIDElasticSearch(context.Context, *gr.GetCampaignByListIDRequest) (*gr.GetCampaignByIDResponse, error) {
-	return nil, nil
+func (h *gRPCHandler) GetCampaignByListIDElasticSearch(ctx context.Context, req *gr.GetCampaignByListIDElasticSearchRequest) (*gr.GetCampaignByListIDResponse, error) {
+	log.Println("GetCampaignByListIDElasticSearch is called ! ")
+
+	cmp, err := h.sv.GetByListIDElasticSearch(ctx, req.GetId())
+	if err != nil {
+		return nil, err
+	}
+
+	converted_res := &gr.GetCampaignByListIDResponse{
+		Campaign: []*gr.Campaign{},
+	}
+
+	for _, cmp := range cmp {
+		converted_res.Campaign = append(converted_res.Campaign, &gr.Campaign{
+			Id:           cmp.ID,
+			CampaignName: cmp.Name,
+			Start:        timestamppb.New(cmp.Start),
+			End:          timestamppb.New(cmp.End),
+			Active:       cmp.ActivaStatus,
+		})
+	}
+
+	return converted_res, nil
 }

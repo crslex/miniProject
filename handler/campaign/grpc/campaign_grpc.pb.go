@@ -23,9 +23,9 @@ const _ = grpc.SupportPackageIsVersion7
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type CampaignHandlerClient interface {
 	GetCampaignByID(ctx context.Context, in *GetCampaignByIDRequest, opts ...grpc.CallOption) (*Campaign, error)
-	GetCampaignByIDElasticSearch(ctx context.Context, in *GetCampaignByIDRequest, opts ...grpc.CallOption) (*Campaign, error)
-	GetCampaignByListID(ctx context.Context, in *GetCampaignByListIDRequest, opts ...grpc.CallOption) (*GetCampaignByIDResponse, error)
-	GetCampaignByListIDElasticSearch(ctx context.Context, in *GetCampaignByListIDRequest, opts ...grpc.CallOption) (*GetCampaignByIDResponse, error)
+	GetCampaignByIDElasticSearch(ctx context.Context, in *GetCampaignByIDElasticSearchRequest, opts ...grpc.CallOption) (*Campaign, error)
+	GetCampaignByListID(ctx context.Context, in *GetCampaignByListIDRequest, opts ...grpc.CallOption) (*GetCampaignByListIDResponse, error)
+	GetCampaignByListIDElasticSearch(ctx context.Context, in *GetCampaignByListIDElasticSearchRequest, opts ...grpc.CallOption) (*GetCampaignByListIDResponse, error)
 }
 
 type campaignHandlerClient struct {
@@ -45,7 +45,7 @@ func (c *campaignHandlerClient) GetCampaignByID(ctx context.Context, in *GetCamp
 	return out, nil
 }
 
-func (c *campaignHandlerClient) GetCampaignByIDElasticSearch(ctx context.Context, in *GetCampaignByIDRequest, opts ...grpc.CallOption) (*Campaign, error) {
+func (c *campaignHandlerClient) GetCampaignByIDElasticSearch(ctx context.Context, in *GetCampaignByIDElasticSearchRequest, opts ...grpc.CallOption) (*Campaign, error) {
 	out := new(Campaign)
 	err := c.cc.Invoke(ctx, "/campaign.CampaignHandler/GetCampaignByIDElasticSearch", in, out, opts...)
 	if err != nil {
@@ -54,8 +54,8 @@ func (c *campaignHandlerClient) GetCampaignByIDElasticSearch(ctx context.Context
 	return out, nil
 }
 
-func (c *campaignHandlerClient) GetCampaignByListID(ctx context.Context, in *GetCampaignByListIDRequest, opts ...grpc.CallOption) (*GetCampaignByIDResponse, error) {
-	out := new(GetCampaignByIDResponse)
+func (c *campaignHandlerClient) GetCampaignByListID(ctx context.Context, in *GetCampaignByListIDRequest, opts ...grpc.CallOption) (*GetCampaignByListIDResponse, error) {
+	out := new(GetCampaignByListIDResponse)
 	err := c.cc.Invoke(ctx, "/campaign.CampaignHandler/GetCampaignByListID", in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -63,8 +63,8 @@ func (c *campaignHandlerClient) GetCampaignByListID(ctx context.Context, in *Get
 	return out, nil
 }
 
-func (c *campaignHandlerClient) GetCampaignByListIDElasticSearch(ctx context.Context, in *GetCampaignByListIDRequest, opts ...grpc.CallOption) (*GetCampaignByIDResponse, error) {
-	out := new(GetCampaignByIDResponse)
+func (c *campaignHandlerClient) GetCampaignByListIDElasticSearch(ctx context.Context, in *GetCampaignByListIDElasticSearchRequest, opts ...grpc.CallOption) (*GetCampaignByListIDResponse, error) {
+	out := new(GetCampaignByListIDResponse)
 	err := c.cc.Invoke(ctx, "/campaign.CampaignHandler/GetCampaignByListIDElasticSearch", in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -77,9 +77,9 @@ func (c *campaignHandlerClient) GetCampaignByListIDElasticSearch(ctx context.Con
 // for forward compatibility
 type CampaignHandlerServer interface {
 	GetCampaignByID(context.Context, *GetCampaignByIDRequest) (*Campaign, error)
-	GetCampaignByIDElasticSearch(context.Context, *GetCampaignByIDRequest) (*Campaign, error)
-	GetCampaignByListID(context.Context, *GetCampaignByListIDRequest) (*GetCampaignByIDResponse, error)
-	GetCampaignByListIDElasticSearch(context.Context, *GetCampaignByListIDRequest) (*GetCampaignByIDResponse, error)
+	GetCampaignByIDElasticSearch(context.Context, *GetCampaignByIDElasticSearchRequest) (*Campaign, error)
+	GetCampaignByListID(context.Context, *GetCampaignByListIDRequest) (*GetCampaignByListIDResponse, error)
+	GetCampaignByListIDElasticSearch(context.Context, *GetCampaignByListIDElasticSearchRequest) (*GetCampaignByListIDResponse, error)
 	mustEmbedUnimplementedCampaignHandlerServer()
 }
 
@@ -90,13 +90,13 @@ type UnimplementedCampaignHandlerServer struct {
 func (UnimplementedCampaignHandlerServer) GetCampaignByID(context.Context, *GetCampaignByIDRequest) (*Campaign, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetCampaignByID not implemented")
 }
-func (UnimplementedCampaignHandlerServer) GetCampaignByIDElasticSearch(context.Context, *GetCampaignByIDRequest) (*Campaign, error) {
+func (UnimplementedCampaignHandlerServer) GetCampaignByIDElasticSearch(context.Context, *GetCampaignByIDElasticSearchRequest) (*Campaign, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetCampaignByIDElasticSearch not implemented")
 }
-func (UnimplementedCampaignHandlerServer) GetCampaignByListID(context.Context, *GetCampaignByListIDRequest) (*GetCampaignByIDResponse, error) {
+func (UnimplementedCampaignHandlerServer) GetCampaignByListID(context.Context, *GetCampaignByListIDRequest) (*GetCampaignByListIDResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetCampaignByListID not implemented")
 }
-func (UnimplementedCampaignHandlerServer) GetCampaignByListIDElasticSearch(context.Context, *GetCampaignByListIDRequest) (*GetCampaignByIDResponse, error) {
+func (UnimplementedCampaignHandlerServer) GetCampaignByListIDElasticSearch(context.Context, *GetCampaignByListIDElasticSearchRequest) (*GetCampaignByListIDResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetCampaignByListIDElasticSearch not implemented")
 }
 func (UnimplementedCampaignHandlerServer) mustEmbedUnimplementedCampaignHandlerServer() {}
@@ -131,7 +131,7 @@ func _CampaignHandler_GetCampaignByID_Handler(srv interface{}, ctx context.Conte
 }
 
 func _CampaignHandler_GetCampaignByIDElasticSearch_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(GetCampaignByIDRequest)
+	in := new(GetCampaignByIDElasticSearchRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -143,7 +143,7 @@ func _CampaignHandler_GetCampaignByIDElasticSearch_Handler(srv interface{}, ctx 
 		FullMethod: "/campaign.CampaignHandler/GetCampaignByIDElasticSearch",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(CampaignHandlerServer).GetCampaignByIDElasticSearch(ctx, req.(*GetCampaignByIDRequest))
+		return srv.(CampaignHandlerServer).GetCampaignByIDElasticSearch(ctx, req.(*GetCampaignByIDElasticSearchRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -167,7 +167,7 @@ func _CampaignHandler_GetCampaignByListID_Handler(srv interface{}, ctx context.C
 }
 
 func _CampaignHandler_GetCampaignByListIDElasticSearch_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(GetCampaignByListIDRequest)
+	in := new(GetCampaignByListIDElasticSearchRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -179,7 +179,7 @@ func _CampaignHandler_GetCampaignByListIDElasticSearch_Handler(srv interface{}, 
 		FullMethod: "/campaign.CampaignHandler/GetCampaignByListIDElasticSearch",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(CampaignHandlerServer).GetCampaignByListIDElasticSearch(ctx, req.(*GetCampaignByListIDRequest))
+		return srv.(CampaignHandlerServer).GetCampaignByListIDElasticSearch(ctx, req.(*GetCampaignByListIDElasticSearchRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
