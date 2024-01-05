@@ -10,6 +10,7 @@ import (
 	"log"
 	"time"
 
+	constant "github.com/crslex/miniProject/constant"
 	model "github.com/crslex/miniProject/internals/model/campaign"
 )
 
@@ -82,7 +83,7 @@ func (c *CampaignRepository) GetByIDElasticSearch(ctx context.Context, ID string
 		fmt.Println(err)
 		return nil, err
 	}
-	err = c.nsqProd.Publish(redis_topic_name, cmp)
+	err = c.nsqProd.Publish(constant.NSQTopic, cmp)
 	if err != nil {
 		log.Println("Failed to publish to redis and es through nsq")
 		return nil, err

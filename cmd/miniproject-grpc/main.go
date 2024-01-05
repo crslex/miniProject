@@ -12,6 +12,7 @@ import (
 	"github.com/redis/go-redis/v9"
 
 	"github.com/crslex/miniProject/config"
+	c "github.com/crslex/miniProject/constant"
 	hCampaign "github.com/crslex/miniProject/internals/handler/campaign"
 	rCampaign "github.com/crslex/miniProject/internals/repository/db/campaign/impl"
 	sCampaign "github.com/crslex/miniProject/internals/usecase/campaign/impl"
@@ -20,8 +21,14 @@ import (
 )
 
 func main() {
+	// Create config file
+	cfg, err := InitConfig(c.ConfigPath)
+	if err != nil {
+		log.Panic("constant reading error : ", err)
+	}
+	log.Println("port", cfg.Server.GRPC.Host)
 	// Create db connection
-	err := config.InitDB()
+	err = config.InitDB()
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -32,7 +39,7 @@ func main() {
 	NSQProducer, _ := nsq.NewProducer("127.0.0.1:4150", config)
 	// Create NSQ Consumer
 	config_consumer := nsq.NewConfig()
-	nsq_consumer, _ := nsq.NewConsumer("to_redis", "ch", config_consumer)
+	nsq_consumer, _ := nsq.NewConsumer(c.NSQTopic, "ch", config_consumer)
 
 	// Create redis client
 	rdb := redis.NewClient(
@@ -44,7 +51,7 @@ func main() {
 	)
 
 	// Create elasticsearch client
-	cfg := elasticsearch.Config{
+	elastic_cfg := elasticsearch.Config{
 		Addresses: []string{
 			"https://localhost:9200",
 		},
@@ -57,7 +64,7 @@ func main() {
 		},
 	}
 
-	es_client, _ := elasticsearch.NewClient(cfg)
+	es_client, _ := elasticsearch.NewClient(elastic_cfg)
 	// repo initialization
 	campaignRepo := rCampaign.NewCampaignRepository(conn, NSQProducer, rdb, es_client)
 
@@ -71,11 +78,11 @@ func main() {
 	campaignHandler := hCampaign.NewHandler(campaignService)
 
 	// Handler initialization
-	listener, err := net.Listen("tcp", ":8080")
+	listener, err := net.Listen("tcp", cfg.Server.GRPC.Port)
 	if err != nil {
 		panic(err)
 	}
-	log.Println("Server started")
+	log.Println("Server started", cfg.Server.GRPC.Port)
 	s := grpc.NewServer()
 	gr.RegisterCampaignHandlerServer(s, campaignHandler)
 	reflection.Register(s)

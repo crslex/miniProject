@@ -11,6 +11,7 @@ import (
 	"strconv"
 	"time"
 
+	constant "github.com/crslex/miniProject/constant"
 	model "github.com/crslex/miniProject/internals/model/campaign"
 	rCampaign "github.com/crslex/miniProject/internals/repository/db/campaign"
 	"github.com/elastic/go-elasticsearch/v8"
@@ -20,8 +21,7 @@ import (
 )
 
 const (
-	redis_topic_name = "to_redis"
-	es_index_name    = "campaign_index"
+	es_index_name = "campaign_index"
 )
 
 type CampaignRepository struct {
@@ -156,7 +156,7 @@ func (c *CampaignRepository) GetByID(ctx context.Context, ID int64) (m *model.Ca
 		log.Println("Marshal error", err)
 		return nil, err
 	}
-	err = c.nsqProd.Publish(redis_topic_name, cmp)
+	err = c.nsqProd.Publish(constant.NSQTopic, cmp)
 	if err != nil {
 		log.Println("Failed to publish to redis through nsq")
 		return nil, err
