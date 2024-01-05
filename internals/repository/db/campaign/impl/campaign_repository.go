@@ -3,9 +3,7 @@ package impl
 import (
 	"bytes"
 	"context"
-	"database/sql"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"log"
 	"strconv"
@@ -130,25 +128,14 @@ func (c *CampaignRepository) GetByID(ctx context.Context, ID int64) (m *model.Ca
 	}
 	defer connection.Release()
 
-	rows, err := connection.Query(ctx, "SELECT * FROM campaign WHERE id=$1", ID)
+	// notes : try using any, explore abt batching,
+	res := model.Campaign{}
+	err = connection.QueryRow(ctx, `SELECT id,campaign_name,"start","end", active FROM campaign WHERE id=$1`, ID).Scan(&res.ID, &res.Name,
+		&res.Start, &res.End, &res.ActivaStatus)
 	if err != nil {
-		return nil, errors.New("failed to execute query in GetByID repository layer")
+		return nil, err
 	}
-	if !rows.Next() {
-		log.Println("Keys not found")
-		return nil, sql.ErrNoRows
-	}
-	nn, err := rows.Values()
-	if err != nil {
-		return nil, errors.New("failed to acquire values from rows acquired")
-	}
-	res := model.Campaign{
-		ID:           int64(nn[0].(int32)),
-		Name:         nn[1].(string),
-		Start:        nn[2].(time.Time),
-		End:          nn[3].(time.Time),
-		ActivaStatus: nn[4].(bool),
-	}
+
 	log.Println("Found on postgres")
 	// PUBLISH TO NSQ HERE
 	cmp, err := json.Marshal(res)

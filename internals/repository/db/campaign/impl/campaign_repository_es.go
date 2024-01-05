@@ -2,13 +2,10 @@ package impl
 
 import (
 	"context"
-	"database/sql"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"io"
 	"log"
-	"time"
 
 	constant "github.com/crslex/miniProject/constant"
 	model "github.com/crslex/miniProject/internals/model/campaign"
@@ -58,24 +55,11 @@ func (c *CampaignRepository) GetByIDElasticSearch(ctx context.Context, ID string
 	}
 	defer connection.Release()
 
-	rows, err := connection.Query(ctx, "SELECT * FROM campaign WHERE id=$1", ID)
+	res := model.Campaign{}
+	err = connection.QueryRow(ctx, `SELECT id,campaign_name,"start","end", active FROM campaign WHERE id=$1`, ID).Scan(&res.ID, &res.Name,
+		&res.Start, &res.End, &res.ActivaStatus)
 	if err != nil {
-		return nil, errors.New("failed to execute query in GetByID repository layer")
-	}
-	if !rows.Next() {
-		log.Println("Keys not found")
-		return nil, sql.ErrNoRows
-	}
-	nn, err := rows.Values()
-	if err != nil {
-		return nil, errors.New("failed to acquire values from rows acquired")
-	}
-	res := model.Campaign{
-		ID:           int64(nn[0].(int32)),
-		Name:         nn[1].(string),
-		Start:        nn[2].(time.Time),
-		End:          nn[3].(time.Time),
-		ActivaStatus: nn[4].(bool),
+		return nil, err
 	}
 	// PUBLISH TO NSQ HERE
 	cmp, err := json.Marshal(res)
