@@ -35,4 +35,4 @@ run-elastic:
 	$(ES_HOME)/bin/elasticsearch
 
 start-server:
-	go run main.go
+	go run ./cmd/miniproject-grpc/main.go

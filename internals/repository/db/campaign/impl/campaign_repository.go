@@ -1,4 +1,4 @@
-package campaign
+package impl
 
 import (
 	"bytes"
@@ -11,7 +11,8 @@ import (
 	"strconv"
 	"time"
 
-	model "github.com/crslex/miniProject/model/campaign"
+	model "github.com/crslex/miniProject/internals/model/campaign"
+	rCampaign "github.com/crslex/miniProject/internals/repository/db/campaign"
 	"github.com/elastic/go-elasticsearch/v8"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/nsqio/go-nsq"
@@ -32,7 +33,7 @@ type CampaignRepository struct {
 
 // GetByListIDElasticSearch implements model.CampaignRepository.
 
-func NewCampaignRepository(pgConn *pgxpool.Pool, nsqProd *nsq.Producer, rc *redis.Client, es *elasticsearch.Client) model.CampaignRepository {
+func NewCampaignRepository(pgConn *pgxpool.Pool, nsqProd *nsq.Producer, rc *redis.Client, es *elasticsearch.Client) rCampaign.CampaignRepository {
 	return &CampaignRepository{
 		pgConn:  pgConn,
 		nsqProd: nsqProd,
@@ -148,10 +149,11 @@ func (c *CampaignRepository) GetByID(ctx context.Context, ID int64) (m *model.Ca
 		End:          nn[3].(time.Time),
 		ActivaStatus: nn[4].(bool),
 	}
+	log.Println("Found on postgres")
 	// PUBLISH TO NSQ HERE
 	cmp, err := json.Marshal(res)
 	if err != nil {
-		fmt.Println(err)
+		log.Println("Marshal error", err)
 		return nil, err
 	}
 	err = c.nsqProd.Publish(redis_topic_name, cmp)
@@ -168,7 +170,7 @@ func (c *CampaignRepository) GetByListID(ctx context.Context, ListID []int64) (m
 	for _, id := range ListID {
 		cmp, err := c.GetByID(ctx, id)
 		if err != nil {
-			log.Println("Failed in GetByLastID using GetByID", err.Error())
+			log.Println("Failed in GetByListID using GetByID", err.Error())
 			continue
 		}
 		res = append(res, *cmp)

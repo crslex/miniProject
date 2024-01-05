@@ -6,15 +6,15 @@ import (
 	"net"
 	"net/http"
 
-	gr "github.com/crslex/miniProject/handler/campaign/grpc"
+	gr "github.com/crslex/miniProject/internals/handler/campaign/grpc"
 	"github.com/elastic/go-elasticsearch/v8"
 	"github.com/nsqio/go-nsq"
 	"github.com/redis/go-redis/v9"
 
 	"github.com/crslex/miniProject/config"
-	campaaign_handler "github.com/crslex/miniProject/handler/campaign"
-	campaign_repo "github.com/crslex/miniProject/repository/campaign"
-	campaign_service "github.com/crslex/miniProject/service/campaign"
+	hCampaign "github.com/crslex/miniProject/internals/handler/campaign"
+	rCampaign "github.com/crslex/miniProject/internals/repository/db/campaign/impl"
+	sCampaign "github.com/crslex/miniProject/internals/usecase/campaign/impl"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
 )
@@ -59,16 +59,16 @@ func main() {
 
 	es_client, _ := elasticsearch.NewClient(cfg)
 	// repo initialization
-	campaignRepo := campaign_repo.NewCampaignRepository(conn, NSQProducer, rdb, es_client)
+	campaignRepo := rCampaign.NewCampaignRepository(conn, NSQProducer, rdb, es_client)
 
 	// Initiate NSQ Consumer
 	campaignRepo.InitNSQConsumer(nsq_consumer)
 
 	// services initialization
-	campaignService := campaign_service.NewCampaignService(campaignRepo)
+	campaignService := sCampaign.NewCampaignService(campaignRepo)
 
 	// New Handler
-	campaignHandler := campaaign_handler.NewHandler(campaignService)
+	campaignHandler := hCampaign.NewHandler(campaignService)
 
 	// Handler initialization
 	listener, err := net.Listen("tcp", ":8080")

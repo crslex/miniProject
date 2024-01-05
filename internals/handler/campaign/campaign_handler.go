@@ -4,17 +4,17 @@ import (
 	"context"
 	"log"
 
-	gr "github.com/crslex/miniProject/handler/campaign/grpc"
-	mdl "github.com/crslex/miniProject/model/campaign"
+	gr "github.com/crslex/miniProject/internals/handler/campaign/grpc"
+	uCampaign "github.com/crslex/miniProject/internals/usecase/campaign"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
 type gRPCHandler struct {
 	gr.UnimplementedCampaignHandlerServer
-	sv mdl.CampaignService
+	sv uCampaign.CampaignService
 }
 
-func NewHandler(srv mdl.CampaignService) gr.CampaignHandlerServer {
+func NewHandler(srv uCampaign.CampaignService) gr.CampaignHandlerServer {
 	return &gRPCHandler{
 		UnimplementedCampaignHandlerServer: gr.UnimplementedCampaignHandlerServer{},
 		sv:                                 srv,

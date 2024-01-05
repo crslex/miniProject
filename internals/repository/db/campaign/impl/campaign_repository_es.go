@@ -1,4 +1,4 @@
-package campaign
+package impl
 
 import (
 	"context"
@@ -10,7 +10,7 @@ import (
 	"log"
 	"time"
 
-	model "github.com/crslex/miniProject/model/campaign"
+	model "github.com/crslex/miniProject/internals/model/campaign"
 )
 
 func (c *CampaignRepository) GetByListIDElasticSearch(ctx context.Context, ListID []string) ([]model.Campaign, error) {

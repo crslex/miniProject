@@ -1,10 +1,10 @@
-package campaign
+package impl
 
 import (
 	"context"
 	"errors"
 
-	model "github.com/crslex/miniProject/model/campaign"
+	model "github.com/crslex/miniProject/internals/model/campaign"
 )
 
 func (c *campaignService) GetByIDElasticSearch(ctx context.Context, ID string) (*model.Campaign, error) {

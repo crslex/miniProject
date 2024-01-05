@@ -1,15 +1,17 @@
-package campaign
+package impl
 
 import (
 	"context"
 	"errors"
 	"log"
 
-	model "github.com/crslex/miniProject/model/campaign"
+	model "github.com/crslex/miniProject/internals/model/campaign"
+	rCampaign "github.com/crslex/miniProject/internals/repository/db/campaign"
+	uCampaign "github.com/crslex/miniProject/internals/usecase/campaign"
 )
 
 type campaignService struct {
-	repo model.CampaignRepository
+	repo rCampaign.CampaignRepository
 }
 
 func (*campaignService) GetByIDGraphQL() {
@@ -20,7 +22,7 @@ func (*campaignService) GetByListIDGraphQL() {
 	panic("unimplemented")
 }
 
-func NewCampaignService(repo model.CampaignRepository) model.CampaignService {
+func NewCampaignService(repo rCampaign.CampaignRepository) uCampaign.CampaignService {
 	return &campaignService{
 		repo: repo,
 	}
